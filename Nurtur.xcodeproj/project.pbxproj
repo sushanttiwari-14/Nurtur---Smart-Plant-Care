@@ -16,6 +16,21 @@
 			path = Nurtur;
 			sourceTree = "<group>";
 		};
+		DF9F9B322F45E0E400000AFD /* View */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = View;
+			sourceTree = "<group>";
+		};
+		DF9F9B372F45F42600000AFD /* Model */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Model;
+			sourceTree = "<group>";
+		};
+		DF9F9B402F464CA200000AFD /* ViewModel */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +47,9 @@
 		DF9F9B192F45DBA800000AFD = {
 			isa = PBXGroup;
 			children = (
+				DF9F9B402F464CA200000AFD /* ViewModel */,
+				DF9F9B372F45F42600000AFD /* Model */,
+				DF9F9B322F45E0E400000AFD /* View */,
 				DF9F9B242F45DBA800000AFD /* Nurtur */,
 				DF9F9B232F45DBA800000AFD /* Products */,
 			);
@@ -62,6 +80,9 @@
 			);
 			fileSystemSynchronizedGroups = (
 				DF9F9B242F45DBA800000AFD /* Nurtur */,
+				DF9F9B322F45E0E400000AFD /* View */,
+				DF9F9B372F45F42600000AFD /* Model */,
+				DF9F9B402F464CA200000AFD /* ViewModel */,
 			);
 			name = Nurtur;
 			packageProductDependencies = (
