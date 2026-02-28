@@ -4,102 +4,112 @@
 //
 //  Created by sushant tiwari on 21/02/26.
 //
-
 import SwiftUI
 
 struct PlantDetailView: View {
+    
     @Environment(\.dismiss) private var dismiss
     @Binding var plant: Plant
+    
     @State private var showWaterWarning = false
     @State private var showEditSheet = false
+    
     var onWater: () -> Bool
     var onEdit: (String, Int) -> Void
     
+    // MARK: - Safe Care Score
+    private var safeScore: Int {
+        min(max(plant.careScore, 0), 100)
+    }
+    
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 20) {
                 
-                // Plant Name
+                // MARK: - Top Section (Image + Care Score)
+                HStack(alignment: .top, spacing: 20) {
+                    
+                    // Plant Image
+                    if let path = plant.imagePath,
+                       let image = ImageStorageManager.shared.loadImage(from: path) {
+                        
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 140, height: 140)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .shadow(radius: 4)
+                        
+                    } else {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.gray.opacity(0.1))
+                            .frame(width: 140, height: 140)
+                            .overlay(
+                                Image(systemName: "leaf")
+                                    .font(.largeTitle)
+                                    .foregroundColor(.green)
+                            )
+                    }
+                    
+                    Spacer()
+                    
+                    // Care Score Ring
+                    ZStack {
+                        
+                        Circle()
+                            .stroke(Color.gray.opacity(0.15), lineWidth: 18)
+                        
+                        Circle()
+                            .trim(from: 0, to: CGFloat(safeScore) / 100)
+                            .stroke(
+                                scoreColor,
+                                style: StrokeStyle(lineWidth: 18, lineCap: .round)
+                            )
+                            .rotationEffect(.degrees(-90))
+                            .animation(.easeInOut(duration: 0.8), value: safeScore)
+                        
+                        VStack(spacing: 4) {
+                            Text("Care")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            
+                            Text("\(safeScore)%")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                        }
+                    }
+                    .frame(width: 140, height: 140)
+                }
+                
+                // MARK: - Plant Name
                 Text(plant.name)
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                //Progress ring which show care score of plant
-                VStack(spacing: 16) {
-
-                    ZStack {
-
-                        // Background track circle
-                        Circle()
-                            .stroke(Color.gray.opacity(0.15), lineWidth: 20)
-
-                        // Progress circle
-                        Circle()
-                            .trim(from: 0, to: CGFloat(plant.careScore) / 100)
-                            .stroke(
-                                scoreColor,
-                                style: StrokeStyle(
-                                    lineWidth: 20,
-                                    lineCap: .round
-                                )
-                            )
-                            .rotationEffect(.degrees(-90))
-                            .animation(.easeInOut(duration: 1.0), value: plant.careScore)
-
-                        // Percentage text
-                        Text("\(plant.careScore)%")
-                            .font(.system(size: 44, weight: .bold))
-                    }
-                    .frame(width: 200, height: 200)
-
-                    Text(careLabel)
-                        .font(.headline)
-                        .foregroundColor(scoreColor)
-
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
                 
-                // Next Watering
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Next Watering")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                    
-                    Text(formattedNextDate)
-                        .font(.title3)
-                }
+                // MARK: - Next Watering
+                section(title: "Next Watering", value: formattedNextDate)
                 
-                // Last Watered
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Last Watered")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                    
-                    Text(lastWateredText)
-                        .font(.title3)
-                }
+                // MARK: - Last Watered
+                section(title: "Last Watered", value: lastWateredText)
                 
-                // Frequency
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Watering Frequency")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                    
-                    Text("Every \(plant.wateringFrequency) days")
-                        .font(.title3)
-                }
-//                Text("Care Score\(plant.careScore)")
+                // MARK: - Frequency
+                section(
+                    title: "Watering Frequency",
+                    value: "Every \(plant.wateringFrequency) days"
+                )
                 
-                // Total Times
+                // MARK: - Stats
                 Text("Watered \(plant.wateringHistory.count) times")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                
                 Text("Missed \(plant.missedCount) waterings")
                     .font(.subheadline)
                     .foregroundColor(plant.missedCount > 0 ? .red : .secondary)
                 
-                Spacer(minLength: 16)
+                Spacer(minLength: 20)
                 
+                // MARK: - Water Button
                 Button {
                     let success = onWater()
                     if success {
@@ -137,27 +147,29 @@ struct PlantDetailView: View {
             }
         }
         .alert("Already Watered", isPresented: $showWaterWarning) {
-            Button("OK", role: .cancel) { }
+            Button("OK", role: .cancel) {}
         } message: {
             Text("This plant has already been watered today.")
         }
     }
     
+    // MARK: - Reusable Section Builder
+    private func section(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.secondary)
+            
+            Text(value)
+                .font(.title3)
+        }
+    }
+    
+    // MARK: - Date Logic
     private var formattedNextDate: String {
-        _ = Calendar.current
-        
-        if plant.isOverdue {
-            return "Overdue"
-        }
-        
-        if plant.daysRemaining == 0 {
-            return "Today"
-        }
-        
-        if plant.daysRemaining == 1 {
-            return "Tomorrow"
-        }
-        
+        if plant.isOverdue { return "Overdue" }
+        if plant.daysRemaining == 0 { return "Today" }
+        if plant.daysRemaining == 1 { return "Tomorrow" }
         return "In \(plant.daysRemaining) days"
     }
     
@@ -171,52 +183,36 @@ struct PlantDetailView: View {
         if calendar.isDateInToday(last) {
             return "Today at \(formatTime(last))"
         }
-        
         if calendar.isDateInYesterday(last) {
             return "Yesterday at \(formatTime(last))"
         }
         
         return formatFullDate(last)
     }
+    
     private func formatTime(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
         return formatter.string(from: date)
     }
-
+    
     private func formatFullDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: date)
     }
+    
+    // MARK: - Care Score Color
     private var scoreColor: Color {
-        switch plant.careScore {
-        case 90...100:
-            return .green
-        case 70..<90:
-            return .mint
-        case 40..<70:
-            return .orange
-        default:
-            return .red
-        }
-    }
-
-    private var careLabel: String {
-        switch plant.careScore {
-        case 90...100:
-            return "Perfect Care 🌿"
-        case 70..<90:
-            return "Excellent Care"
-        case 40..<70:
-            return "Improving"
-        default:
-            return "Needs Attention"
+        switch safeScore {
+        case 90...100: return .green
+        case 70..<90: return .mint
+        case 40..<70: return .orange
+        default: return .red
         }
     }
 }
-
 #Preview {
     NavigationStack {
         PlantDetailView(

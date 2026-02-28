@@ -83,7 +83,7 @@ import UserNotifications
     var temperatureCelsius: Double? {
         (weather?.main.temp)! - 273.15
     }
-     func addPlant(name: String, frequency: Int, imagePath: String) {
+     func addPlant(name: String, frequency: Int, imagePath: String?){
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
         let nextDate = Calendar.current.date(
@@ -96,7 +96,7 @@ import UserNotifications
              name: name,
              nextWateringDate: nextDate,
              wateringFrequency: frequency,
-             imagePath: imagePath,
+             imagePath: imagePath,   // optional
              wateringHistory: []
          )
         
@@ -140,14 +140,23 @@ import UserNotifications
         return true
     }
     
-    func deletePlant(_ plant: Plant) {
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.impactOccurred()
-        cancelNotification(for: plant)
-        plants.removeAll { $0.id == plant.id }
-        savePlants()
-        
-    }
+     func deletePlant(_ plant: Plant) {
+         
+         let generator = UIImpactFeedbackGenerator(style: .light)
+         generator.impactOccurred()
+         
+         //  Cancel notification
+         cancelNotification(for: plant)
+         
+         // Delete image file from disk (NEW)
+         ImageStorageManager.shared.deleteImage(at: plant.imagePath)
+         
+         //  Remove plant from array
+         plants.removeAll { $0.id == plant.id }
+         
+         // Save updated data
+         savePlants()
+     }
     
     
     private func savePlants() {

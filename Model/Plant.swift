@@ -12,7 +12,7 @@ struct Plant : Identifiable , Codable
     var name : String
     var nextWateringDate : Date
     var wateringFrequency: Int
-    var imagePath: String
+    var imagePath: String?
     var wateringHistory: [Date] = []
     var isOverdue: Bool {
         let calendar = Calendar.current

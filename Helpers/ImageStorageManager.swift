@@ -45,4 +45,23 @@ final class ImageStorageManager {
     func loadImage(from path: String) -> UIImage? {
         return UIImage(contentsOfFile: path)
     }
+    
+    func deleteImage(at path: String?) {
+        guard let path = path else { return }
+
+        let url: URL
+        if path.hasPrefix("/") || path.hasPrefix("file://") {
+            // Treat as absolute path
+            url = URL(fileURLWithPath: path)
+        } else {
+            // Treat as filename relative to our images directory
+            url = imagesDirectory.appendingPathComponent(path)
+        }
+
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            print("Failed to delete image:", error)
+        }
+    }
 }

@@ -15,8 +15,8 @@ struct PlantCardView: View {
     var body: some View {
        
             HStack {
-                if let image = ImageStorageManager.shared.loadImage(from: plant.imagePath),
-                   !plant.imagePath.isEmpty {
+                if let path = plant.imagePath,
+                   let image = ImageStorageManager.shared.loadImage(from: path) {
                     
                     Image(uiImage: image)
                         .resizable()
