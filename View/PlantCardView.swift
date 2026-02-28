@@ -15,9 +15,21 @@ struct PlantCardView: View {
     var body: some View {
        
             HStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("AccentGreen").opacity(0.2))
-                    .frame(width: 60, height: 60)
+                if let image = ImageStorageManager.shared.loadImage(from: plant.imagePath),
+                   !plant.imagePath.isEmpty {
+                    
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    
+                } else {
+                    
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color("AccentGreen").opacity(0.2))
+                        .frame(width: 60, height: 60)
+                }
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(plant.name)
@@ -92,7 +104,8 @@ struct PlantCardView: View {
             plant: Plant(
                 name: "Monstera",
                 nextWateringDate: Date().addingTimeInterval(86400),
-                wateringFrequency: 3
+                wateringFrequency: 3,
+                imagePath: ""
             )
         ) { }
         .padding()

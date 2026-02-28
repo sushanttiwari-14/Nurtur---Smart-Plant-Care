@@ -9,35 +9,46 @@ import Foundation
 import Combine
 import SwiftUI
 import UserNotifications
-class HomeViewModel: ObservableObject {
+ class HomeViewModel: ObservableObject {
     private let storageKey = "saved_plants"
+    private let weatherService = WeatherService()
     init() {
-//        loadPlants()
+        loadPlants()
+        //        testNetworking()
+        testWeather()
     }
+    // test service request
+    private let testService = TestService()
     @Published var plants: [Plant] = [
         Plant(
             name: "Monstera",
             nextWateringDate: Date().addingTimeInterval(-2*86400),
-            wateringFrequency: 2
+            wateringFrequency: 2,
+            imagePath: ""
         ),
         //to check care score manually to 50%
-//        Plant(
-//            name: "Monstera",
-//            nextWateringDate: Date().addingTimeInterval(-2*86400),
-//            wateringFrequency: 2,
-//            wateringHistory: [Date()]
-//        ),
+        //        Plant(
+        //            name: "Monstera",
+        //            nextWateringDate: Date().addingTimeInterval(-2*86400),
+        //            wateringFrequency: 2,
+        //            wateringHistory: [Date()]
+        //        ),
         Plant(
             name: "Snake Plant",
             nextWateringDate: Date().addingTimeInterval(15*172800),
-            wateringFrequency: 5
+            wateringFrequency: 5,
+            imagePath: ""
+
         ),
         Plant(
             name: "Aloevera",
             nextWateringDate: Date().addingTimeInterval(0),
-            wateringFrequency: 2
+            wateringFrequency: 2,
+            imagePath: ""
+
         )
     ]
+    @Published var weather: WeatherResponse?
     var sortedPlants: [Plant] {
         plants.sorted { lhs, rhs in
             if lhs.isOverdue != rhs.isOverdue {
@@ -56,20 +67,23 @@ class HomeViewModel: ObservableObject {
             .filter { $0.isOverdue }
             .sorted { $0.nextWateringDate < $1.nextWateringDate }
     }
-
+    
     var todayPlants: [Plant] {
         plants
             .filter { $0.daysRemaining == 0 }
             .sorted { $0.nextWateringDate < $1.nextWateringDate }
     }
-
+    
     var upcomingPlants: [Plant] {
         plants
             .filter { $0.daysRemaining > 0 }
             .sorted { $0.nextWateringDate < $1.nextWateringDate }
     }
-    
-    func addPlant(name: String, frequency: Int) {
+   
+    var temperatureCelsius: Double? {
+        (weather?.main.temp)! - 273.15
+    }
+     func addPlant(name: String, frequency: Int, imagePath: String) {
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
         let nextDate = Calendar.current.date(
@@ -78,13 +92,13 @@ class HomeViewModel: ObservableObject {
             to: Date()
         ) ?? Date()
         
-        let newPlant = Plant(
-            name: name,
-            nextWateringDate: nextDate,
-            wateringFrequency: frequency,
-            wateringHistory: []
-            
-        )
+         let newPlant = Plant(
+             name: name,
+             nextWateringDate: nextDate,
+             wateringFrequency: frequency,
+             imagePath: imagePath,
+             wateringHistory: []
+         )
         
         withAnimation(.easeInOut) {
             plants.append(newPlant)
@@ -93,37 +107,39 @@ class HomeViewModel: ObservableObject {
         }
     }
     func markAsWatered(_ plant: Plant) -> Bool {
-
+        
         let calendar = Calendar.current
-
+        
         // Check if already watered today
         if let last = plant.wateringHistory.last,
            calendar.isDate(last, inSameDayAs: Date()) {
             return false
         }
-
+        
         guard let index = plants.firstIndex(where: { $0.id == plant.id }) else {
             return false
         }
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
-
+        
         plants[index].wateringHistory.append(Date())
-
+        
         let newDate = calendar.date(
             byAdding: .day,
-            value: plants[index].wateringFrequency,
+            //            value: plants[index].wateringFrequency,
+            // we use now baded on response of weather
+            value: adjustedFrequency(for: plants[index]),
             to: Date()
         ) ?? Date()
-
+        
         plants[index].nextWateringDate = newDate
-
+        
         savePlants()
         scheduleNotification(for: plants[index])
-
+        
         return true
     }
-  
+    
     func deletePlant(_ plant: Plant) {
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
@@ -133,7 +149,7 @@ class HomeViewModel: ObservableObject {
         
     }
     
-
+    
     private func savePlants() {
         if let encoded = try? JSONEncoder().encode(plants) {
             UserDefaults.standard.set(encoded, forKey: storageKey)
@@ -150,23 +166,23 @@ class HomeViewModel: ObservableObject {
         content.title = "Water \(plant.name)"
         content.body = "It's time to water your plant 🌿"
         content.sound = .default
-
+        
         let timeInterval = plant.nextWateringDate.timeIntervalSinceNow
-//        let timeInterval: TimeInterval = 5
-
+        //        let timeInterval: TimeInterval = 5
+        
         guard timeInterval > 0 else { return }
-
+        
         let trigger = UNTimeIntervalNotificationTrigger(
             timeInterval: timeInterval,
             repeats: false
         )
-
+        
         let request = UNNotificationRequest(
             identifier: plant.id.uuidString,
             content: content,
             trigger: trigger
         )
-
+        
         UNUserNotificationCenter.current().add(request)
     }
     private func cancelNotification(for plant: Plant) {
@@ -177,7 +193,7 @@ class HomeViewModel: ObservableObject {
     }
     func updatePlant(_ plant: Plant, name: String, frequency: Int) {
         guard let index = plants.firstIndex(where: { $0.id == plant.id }) else { return }
-
+        
         plants[index].name = name
         plants[index].wateringFrequency = frequency
         
@@ -191,10 +207,10 @@ class HomeViewModel: ObservableObject {
             
             plants[index].nextWateringDate = newNextDate
         }
-
+        
         savePlants()
         scheduleNotification(for: plants[index])
-    } // if plant has water history and we edit its freq then next watering date should be last water date + freq not today+ freq 
+    } // if plant has water history and we edit its freq then next watering date should be last water date + freq not today+ freq
     func filteredPlants(searchText: String) -> [Plant] {
         if searchText.isEmpty {
             return sortedPlants
@@ -203,6 +219,52 @@ class HomeViewModel: ObservableObject {
                 $0.name.localizedCaseInsensitiveContains(searchText)
             }
         }
+    }
+    func testNetworking() {
+        Task {
+            do {
+                let result = try await testService.fetchTestData()
+                print("Title:", result.title)
+            } catch {
+                print("Error:", error)
+            }
+        }
+    }
+    func testWeather() {
+        Task {
+            do {
+                let weather = try await weatherService.fetchWeather(for: "Delhi")
+                self.weather = weather
+            } catch {
+                print("Weather error:", error)
+            }
+        }
+    }
+    // we adjusted frequency according to humidity
+    func adjustedFrequency(for plant: Plant) -> Int {
+        guard let weather = weather else {
+            return plant.wateringFrequency
+        }
+        
+        var adjusted = plant.wateringFrequency
+        
+        let humidity = weather.main.humidity
+        let temperature = Int(weather.main.temp - 273.15)
+        // Humidity logic
+        if humidity > 70 {
+            adjusted += 1
+        } else if humidity < 30 {
+            adjusted -= 1
+        }
+        
+        // Temperature logic
+        if temperature > 35 {
+            adjusted -= 1
+        } else if temperature < 10 {
+            adjusted += 1
+        }
+        
+        return max(1, adjusted)
     }
 }
 

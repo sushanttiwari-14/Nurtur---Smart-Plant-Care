@@ -13,14 +13,34 @@ struct AddPlantView: View {
     
     @State private var plantName: String = ""
     @State private var wateringFrequency: Int = 3
-    
-    var onSave: (String, Int) -> Void
+    @State private var selectedImage: UIImage?
+    @State private var showImagePicker = false
+    var onSave: (String, Int,String) -> Void
     
     var body: some View {
         ZStack {
             Color("AppBackground")
                 .ignoresSafeArea()
-            
+            Button {
+                showImagePicker = true
+            } label: {
+                if let image = selectedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 150)
+                        .clipped()
+                        .cornerRadius(12)
+                } else {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: 150)
+                        .overlay(
+                            Text("Tap to add plant image")
+                                .foregroundColor(.gray)
+                        )
+                }
+            }
             VStack(alignment: .leading, spacing: 24) {
                 
                 HStack {
@@ -38,6 +58,7 @@ struct AddPlantView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
+                    
                     Text("Plant Name")
                         .foregroundColor(Color("TextSecondary"))
                     
@@ -59,7 +80,16 @@ struct AddPlantView: View {
                 Spacer()
                 
                 Button {
-                    onSave(plantName, wateringFrequency)
+                    // user selected image
+                       guard let image = selectedImage else {
+                           return
+                       }
+                       
+                       //  Save image to disk and get file path
+                       guard let path = ImageStorageManager.shared.saveImage(image) else {
+                           return
+                       }
+                    onSave(plantName, wateringFrequency, path)
                     dismiss()
                 } label: {
                     Text("Save Plant")
@@ -73,10 +103,15 @@ struct AddPlantView: View {
             }
             .padding(24)
         }
+        .sheet(isPresented: $showImagePicker) {
+            ImagePicker { image in
+                selectedImage = image
+            }
+        }
     }
 }
 
 #Preview {
-    AddPlantView { _, _ in }
+    AddPlantView { _, _, _ in }
         .preferredColorScheme(.dark)
 }

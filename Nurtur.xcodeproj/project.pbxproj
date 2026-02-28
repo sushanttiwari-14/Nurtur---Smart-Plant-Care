@@ -6,13 +6,31 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DFFDD8FC2F4F8E1D00E98A7D /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DFFDD8FB2F4F8E1D00E98A7D /* Secrets.xcconfig */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		DF9F9B222F45DBA800000AFD /* Nurtur.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nurtur.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFFDD8FB2F4F8E1D00E98A7D /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DFFDD91F2F52402400E98A7D /* Exceptions for "Nurtur" folder in "Nurtur" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DF9F9B212F45DBA800000AFD /* Nurtur */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DF9F9B242F45DBA800000AFD /* Nurtur */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DFFDD91F2F52402400E98A7D /* Exceptions for "Nurtur" folder in "Nurtur" target */,
+			);
 			path = Nurtur;
 			sourceTree = "<group>";
 		};
@@ -31,6 +49,16 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		DFFDD8ED2F4E369000E98A7D /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Services;
+			sourceTree = "<group>";
+		};
+		DFFDD9202F52C94800E98A7D /* Helpers */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +75,9 @@
 		DF9F9B192F45DBA800000AFD = {
 			isa = PBXGroup;
 			children = (
+				DFFDD9202F52C94800E98A7D /* Helpers */,
+				DFFDD8FB2F4F8E1D00E98A7D /* Secrets.xcconfig */,
+				DFFDD8ED2F4E369000E98A7D /* Services */,
 				DF9F9B402F464CA200000AFD /* ViewModel */,
 				DF9F9B372F45F42600000AFD /* Model */,
 				DF9F9B322F45E0E400000AFD /* View */,
@@ -83,6 +114,8 @@
 				DF9F9B322F45E0E400000AFD /* View */,
 				DF9F9B372F45F42600000AFD /* Model */,
 				DF9F9B402F464CA200000AFD /* ViewModel */,
+				DFFDD8ED2F4E369000E98A7D /* Services */,
+				DFFDD9202F52C94800E98A7D /* Helpers */,
 			);
 			name = Nurtur;
 			packageProductDependencies = (
@@ -130,6 +163,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFFDD8FC2F4F8E1D00E98A7D /* Secrets.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,6 +182,7 @@
 /* Begin XCBuildConfiguration section */
 		DF9F9B2B2F45DBA900000AFD /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DFFDD8FB2F4F8E1D00E98A7D /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -211,6 +246,7 @@
 		};
 		DF9F9B2C2F45DBA900000AFD /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DFFDD8FB2F4F8E1D00E98A7D /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -274,6 +310,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Nurtur/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -305,6 +342,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Nurtur/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

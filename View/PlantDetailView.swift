@@ -225,6 +225,7 @@ struct PlantDetailView: View {
                 name: "Monstera",
                 nextWateringDate: Date().addingTimeInterval(86400),
                 wateringFrequency: 3,
+                imagePath: "",
                 wateringHistory: [Date()]
             )),
             onWater: {

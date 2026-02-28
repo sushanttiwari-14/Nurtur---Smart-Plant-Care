@@ -8,126 +8,79 @@
 import SwiftUI
 
 struct HomeView: View {
+
     @State private var showAddPlant = false
-    @State private var searchText =  ""
+    @State private var searchText = ""
+    @State private var showSearch = false
+
     @StateObject private var viewModel = HomeViewModel()
+
     var body: some View {
         NavigationStack {
             ZStack {
                 Color("AppBackground")
                     .ignoresSafeArea()
-                
-                VStack(alignment: .leading, spacing: 32) {
-                    
-                    // Header
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Nurtur")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(Color("TextPrimary"))
-                        
-                        Text("Care for your green companions")
-                            .foregroundColor(Color("TextSecondary"))
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 24)
-                    // Search Bar
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.gray)
-                        
-                        TextField("Search plants", text: $searchText)
-                            .autocorrectionDisabled()
-                            .textInputAutocapitalization(.never)
-                    }
-                    .padding()
-                    .background(Color("SurfaceBackground"))
-                    .cornerRadius(12)
-                    .padding(.horizontal, 24)
-                    
-                    // Content Area
-                    Group {
-                        if viewModel.plants.isEmpty {
-                            
-                            VStack {
-                                Spacer()
-                                
-                                VStack(spacing: 16) {
-                                    Image(systemName: "leaf")
-                                        .font(.system(size: 40))
-                                        .foregroundColor(Color("AccentLight"))
-                                    
-                                    Text("No plants yet")
-                                        .font(.headline)
-                                        .foregroundColor(Color("TextPrimary"))
-                                    
-                                    Text("Tap the + button to add your first plant")
-                                        .font(.subheadline)
-                                        .foregroundColor(Color("TextSecondary"))
-                                }
-                                
-                                Spacer()
-                            }
-                            
-                        } else {
-                            
-                            List {
 
-                                if !filteredOverduePlants().isEmpty {
-                                    Section{
-                                        ForEach(filteredOverduePlants()) { plant in
-                                            plantRow(plant)
-                                        }
-                                    }
-                                    header: {
-                                        Text("Overdue")
-                                            .font(.headline)
-                                            .foregroundColor(.red)
-                                    }
-                                }
+                List {
 
-                                if !filteredTodayPlants().isEmpty {
-                                    Section {
-                                        ForEach(filteredTodayPlants()) { plant in
-                                            plantRow(plant)
-                                        }
-                                    }
-                                    header: {
-                                        Text("Due Today")
-                                            .font(.headline)
-                                            .foregroundColor(Color("AccentLight"))
-                                    }
-                                }
-                                if !filteredUpcomingPlants().isEmpty {
-                                    Section {
-                                        ForEach(filteredUpcomingPlants()) { plant in
-                                            plantRow(plant)
-                                        }
-                                    }
-                                    header: {
-                                        Text("Upcoming")
-                                            .font(.headline)
-                                            .foregroundColor(Color("TextSecondary"))
-                                    }
-                                }
-                            }
-                            .listStyle(.insetGrouped)
-                            .scrollContentBackground(.hidden)
-                            
-                          
+                    // MARK: Header Section
+                    Section {
+                        headerContent
+                    }
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+
+                    // MARK: Weather Section
+                    if let weather = viewModel.weather {
+                        Section {
+                            WeatherCardView(
+                                temperature: weather.main.temp - 273.15,
+                                humidity: weather.main.humidity,
+                                condition: weather.name
+                            )
+                            .padding(.vertical, 8)
                         }
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    // MARK: Plant Sections
+
+                    if !filteredOverduePlants().isEmpty {
+                        plantSection(
+                            title: "Overdue",
+                            color: .red,
+                            plants: filteredOverduePlants()
+                        )
+                    }
+
+                    if !filteredTodayPlants().isEmpty {
+                        plantSection(
+                            title: "Due Today",
+                            color: Color("AccentLight"),
+                            plants: filteredTodayPlants()
+                        )
+                    }
+
+                    if !filteredUpcomingPlants().isEmpty {
+                        plantSection(
+                            title: "Upcoming",
+                            color: Color("TextSecondary"),
+                            plants: filteredUpcomingPlants()
+                        )
+                    }
                 }
-         
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+
                 // Floating Add Button
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
-                        
+
                         Button {
-                           showAddPlant=true
+                            showAddPlant = true
                         } label: {
                             Image(systemName: "plus")
                                 .font(.title2)
@@ -141,14 +94,109 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showAddPlant) {
-                AddPlantView { name, frequency in
-                    viewModel.addPlant(name: name, frequency: frequency)
+                AddPlantView { name, frequency, imagePath in
+                    viewModel.addPlant(
+                        name: name,
+                        frequency: frequency,
+                        imagePath: imagePath
+                    )
                 }
             }
         }
     }
+}
+private extension HomeView {
+
+    var headerContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+
+            HStack {
+                Text("Nurtur")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color("TextPrimary"))
+
+                Spacer()
+
+                Button {
+                    withAnimation(.easeInOut) {
+                        showSearch.toggle()
+                    }
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color("TextPrimary"))
+                        .padding(10)
+                        .background(
+                            Circle()
+                                .fill(Color("SurfaceBackground"))
+                        )
+                        .overlay(
+                            Circle()
+                                .stroke(Color("AccentGreen").opacity(0.2), lineWidth: 1)
+                        )
+                }
+            }
+
+            Text("Care for your green companions")
+                .foregroundColor(Color("TextSecondary"))
+
+            if showSearch {
+                TextField("Search plants", text: $searchText)
+                    .padding()
+                    .background(Color("SurfaceBackground"))
+                    .cornerRadius(12)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .padding(.vertical, 8)
+    }
+}
+private extension HomeView {
+
+    func plantSection(title: String, color: Color, plants: [Plant]) -> some View {
+        Section {
+            ForEach(plants) { plant in
+                plantRow(plant)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+            }
+        } header: {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(color)
+        }
+    }
+}
+private extension HomeView {
+
+    // MARK: - Filtering
+
+    func filteredOverduePlants() -> [Plant] {
+        filter(plants: viewModel.overduePlants)
+    }
+
+    func filteredTodayPlants() -> [Plant] {
+        filter(plants: viewModel.todayPlants)
+    }
+
+    func filteredUpcomingPlants() -> [Plant] {
+        filter(plants: viewModel.upcomingPlants)
+    }
+
+    func filter(plants: [Plant]) -> [Plant] {
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return plants }
+
+        return plants.filter {
+            $0.name.localizedCaseInsensitiveContains(trimmed)
+        }
+    }
+
+    // MARK: - Plant Row
+
     @ViewBuilder
-    private func plantRow(_ plant: Plant) -> some View {
+    func plantRow(_ plant: Plant) -> some View {
         NavigationLink {
             PlantDetailView(
                 plant: binding(for: plant),
@@ -163,42 +211,20 @@ struct HomeView: View {
             PlantCardView(plant: plant) { }
         }
         .swipeActions {
-              Button(role: .destructive) {
-                  viewModel.deletePlant(plant)
-              } label: {
-                  Label("Delete", systemImage: "trash")
-              }
-          }
-    }
-    
-    private func filteredOverduePlants() -> [Plant] {
-        filter(plants: viewModel.overduePlants)
-    }
-
-    private func filteredTodayPlants() -> [Plant] {
-        filter(plants: viewModel.todayPlants)
-    }
-
-    private func filteredUpcomingPlants() -> [Plant] {
-        filter(plants: viewModel.upcomingPlants)
-    }
-
-    private func filter(plants: [Plant]) -> [Plant] {
-        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return plants }
-        return plants.filter { plant in
-            plant.name.range(of: trimmed, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+            Button(role: .destructive) {
+                viewModel.deletePlant(plant)
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
         }
     }
-    private func binding(for plant: Plant) -> Binding<Plant> {
+
+    // MARK: - Binding
+
+    func binding(for plant: Plant) -> Binding<Plant> {
         guard let index = viewModel.plants.firstIndex(where: { $0.id == plant.id }) else {
             fatalError("Plant not found")
         }
         return $viewModel.plants[index]
     }
-}
-
-#Preview {
-    HomeView()
-        .preferredColorScheme(.dark)
 }
