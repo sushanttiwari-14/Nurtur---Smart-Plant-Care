@@ -2,30 +2,28 @@ import SwiftUI
 
 struct ScanView: View {
     
-    @State private var showError = false
-    @State private var errorMessage = ""
     @EnvironmentObject var homeViewModel: HomeViewModel
     @Environment(\.dismiss) private var dismiss
     
+    @StateObject private var viewModel: ScanViewModel
     @State private var showCamera = false
-    @State private var capturedImage: UIImage?
-    @State private var isLoading = false
-    @State private var detectedName: String?
-    @State private var navigateToResult = false
-
-    private let recognitionService: PlantRecognitionServiceProtocol
+    
     var onPlantSaved: (() -> Void)?
+    
     init(
         service: PlantRecognitionServiceProtocol,
         onPlantSaved: (() -> Void)? = nil
     ) {
-        self.recognitionService = service
+        _viewModel = StateObject(
+            wrappedValue: ScanViewModel(service: service)
+        )
         self.onPlantSaved = onPlantSaved
     }
+    
     var body: some View {
         VStack(spacing: 24) {
             
-            if let image = capturedImage {
+            if let image = viewModel.capturedImage {
                 
                 VStack(spacing: 12) {
                     
@@ -36,8 +34,8 @@ struct ScanView: View {
                         .cornerRadius(16)
                     
                     Button("Retake Photo") {
-                        capturedImage = nil
-                        detectedName = nil
+                        viewModel.capturedImage = nil
+                        viewModel.detectedName = nil
                         showCamera = true
                     }
                     .font(.subheadline)
@@ -56,7 +54,7 @@ struct ScanView: View {
                     )
             }
             
-            if isLoading {
+            if viewModel.isLoading {
                 ProgressView("Identifying plant...")
                     .padding()
             }
@@ -64,8 +62,8 @@ struct ScanView: View {
             Button("Open Camera") {
                 showCamera = true
             }
-            .disabled(isLoading)
-            .opacity(isLoading ? 0.5 : 1)
+            .disabled(viewModel.isLoading)
+            .opacity(viewModel.isLoading ? 0.5 : 1)
             .font(.headline)
             .padding()
             .frame(maxWidth: .infinity)
@@ -76,64 +74,61 @@ struct ScanView: View {
             Spacer()
         }
         .padding()
-        .alert("Error", isPresented: $showError) {
+        .navigationTitle("Scan Plant")
+        
+        // ERROR ALERT
+        .alert(
+            "Error",
+            isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { _ in viewModel.errorMessage = nil }
+            )
+        ) {
             Button("OK", role: .cancel) { }
         } message: {
-            Text(errorMessage)
+            Text(viewModel.errorMessage ?? "")
         }
-        .navigationTitle("Scan Plant")
-        .navigationDestination(isPresented: $navigateToResult) {
-            if let image = capturedImage,
-               let name = detectedName {
+        
+        // NAVIGATION WHEN NAME EXISTS
+        .navigationDestination(
+            isPresented: Binding(
+                get: { viewModel.detectedName != nil },
+                set: { _ in viewModel.detectedName = nil }
+            )
+        ) {
+            if let image = viewModel.capturedImage,
+               let name = viewModel.detectedName {
                 
                 ScanResultView(
                     image: image,
                     plantName: name
-                ){
+                ) {
                     dismiss()
                     onPlantSaved?()
                 }
                 .environmentObject(homeViewModel)
-                .onDisappear {
-                    // When confirmation screen disappears,
-                    // close ScanView and AddPlantView
-                    dismiss()
-                }
             }
         }
+        
+        // CAMERA
         .sheet(isPresented: $showCamera) {
             CameraView { image in
-                self.capturedImage = image
-                recognizePlant(image)
-            }
-        }
-    }
-    
-    private func recognizePlant(_ image: UIImage) {
-        
-        isLoading = true
-        
-        Task {
-            do {
-                let name = try await recognitionService.identifyPlant(from: image)
+                viewModel.capturedImage = image
                 
-                await MainActor.run {
-                    self.detectedName = name
-                    self.isLoading = false
-                    self.navigateToResult = true
-                }
-                
-            } catch {
-                await MainActor.run {
-                    self.isLoading = false
-                    self.errorMessage = "Failed to identify plant. Please try again."
-                    self.showError = true
+                Task {
+                    await viewModel.recognizePlant()
                 }
             }
         }
     }
 }
 
+#Preview {
+    ScanView(
+        service: MockPlantRecognitionService()
+    )
+    .environmentObject(HomeViewModel())
+}
 #Preview {
     ScanView(
         service:  MockPlantRecognitionService()
