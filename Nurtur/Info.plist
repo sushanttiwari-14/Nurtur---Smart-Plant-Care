@@ -2,11 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>WEATHER_API_KEY</key>
-	<string>$(WEATHER_API_KEY)</string>
+	<key>CFBundleIdentifier</key>
+	<string></string>
+	<key>NSCameraUsageDescription</key>
+	<string>We use camera to identify your plants.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict/>
+		<dict/>
 	</array>
+	<key>WEATHER_API_KEY</key>
+	<string>$(WEATHER_API_KEY)</string>
 </dict>
 </plist>
