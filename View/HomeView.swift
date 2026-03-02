@@ -94,13 +94,8 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showAddPlant) {
-                AddPlantView { name, frequency, imagePath in
-                    viewModel.addPlant(
-                        name: name,
-                        frequency: frequency,
-                        imagePath: imagePath
-                    )
-                }
+                AddPlantView()
+                    .environmentObject(viewModel)
             }
         }
     }

@@ -11,13 +11,18 @@ import UserNotifications
 @main
 struct NurturApp: App {
 
+    @StateObject private var homeViewModel = HomeViewModel()
+
     init() {
         requestNotificationPermission()
     }
 
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            NavigationStack {
+                HomeView()
+            }
+            .environmentObject(homeViewModel)
         }
     }
 
