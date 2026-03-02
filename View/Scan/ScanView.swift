@@ -13,8 +13,15 @@ struct ScanView: View {
     @State private var detectedName: String?
     @State private var navigateToResult = false
 
-    private let recognitionService = PlantRecognitionService()
+    private let recognitionService: PlantRecognitionServiceProtocol
     var onPlantSaved: (() -> Void)?
+    init(
+        service: PlantRecognitionServiceProtocol,
+        onPlantSaved: (() -> Void)? = nil
+    ) {
+        self.recognitionService = service
+        self.onPlantSaved = onPlantSaved
+    }
     var body: some View {
         VStack(spacing: 24) {
             
@@ -128,6 +135,8 @@ struct ScanView: View {
 }
 
 #Preview {
-    ScanView()
+    ScanView(
+        service:  MockPlantRecognitionService()
+    )
         .environmentObject(HomeViewModel())
 }
