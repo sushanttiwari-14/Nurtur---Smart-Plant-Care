@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+struct PlantAPIResponse: Decodable {
+    let suggestions: [PlantSuggestion]
+}
+
+struct PlantSuggestion: Decodable {
+    let plant_name: String
+    let probability: Double
+}

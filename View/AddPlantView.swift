@@ -127,7 +127,7 @@ struct AddPlantView: View {
         .sheet(isPresented: $showScan) {
             NavigationStack {
                 ScanView(
-                    service: MockPlantRecognitionService()
+                    service: RealPlantRecognitionService()
                 ) {
                     dismiss()
                 }
