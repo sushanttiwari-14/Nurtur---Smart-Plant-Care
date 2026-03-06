@@ -24,8 +24,9 @@ final class RealPlantRecognitionService: PlantRecognitionServiceProtocol {
         
         let base64Image = imageData.base64EncodedString()
         
-        let url = URL(string: "https://api.plant.id/v2/identify")!
-        
+        guard let url = URL(string: "https://api.plant.id/v2/identify") else {
+            throw URLError(.badURL)
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
@@ -39,10 +40,24 @@ final class RealPlantRecognitionService: PlantRecognitionServiceProtocol {
         
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
-        let (data, _) = try await URLSession.shared.data(for: request)
-        
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
         let decoded = try JSONDecoder().decode(PlantAPIResponse.self, from: data)
         
-        return decoded.suggestions.first?.plant_name ?? "Unknown Plant"
+        guard let bestSuggestion = decoded.suggestions.max(by: {
+            $0.probability < $1.probability
+        }) else {
+            return "Unknown Plant"
+        }
+
+        if bestSuggestion.probability < 0.5 {
+            return "Plant not recognized clearly"
+        }
+
+        return bestSuggestion.plant_name
     }
 }

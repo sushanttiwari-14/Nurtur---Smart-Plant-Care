@@ -129,9 +129,4 @@ struct ScanView: View {
     )
     .environmentObject(HomeViewModel())
 }
-#Preview {
-    ScanView(
-        service:  MockPlantRecognitionService()
-    )
-        .environmentObject(HomeViewModel())
-}
+
