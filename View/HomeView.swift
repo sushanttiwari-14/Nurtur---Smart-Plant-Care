@@ -45,6 +45,23 @@ struct HomeView: View {
                     }
 
                     // MARK: Plant Sections
+                    // MARK: Empty State
+
+                    if viewModel.plants.isEmpty {
+                        VStack(spacing: 12) {
+                            
+                            Text("No plants yet 🌱")
+                                .font(.headline)
+                                .foregroundColor(.gray)
+                            
+                            Text("Start by adding your first plant")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                    }
 
                     if !filteredOverduePlants().isEmpty {
                         plantSection(

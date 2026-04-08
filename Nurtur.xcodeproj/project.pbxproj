@@ -8,29 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		DFFDD8FC2F4F8E1D00E98A7D /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = DFFDD8FB2F4F8E1D00E98A7D /* Secrets.xcconfig */; };
+		DFFDDA5F2F6D85A000E98A7D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFFDDA5E2F6D85A000E98A7D /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		DF9F9B222F45DBA800000AFD /* Nurtur.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nurtur.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFFDD8FB2F4F8E1D00E98A7D /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		DFFDDA5E2F6D85A000E98A7D /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		DFFDD91F2F52402400E98A7D /* Exceptions for "Nurtur" folder in "Nurtur" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = DF9F9B212F45DBA800000AFD /* Nurtur */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DF9F9B242F45DBA800000AFD /* Nurtur */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				DFFDD91F2F52402400E98A7D /* Exceptions for "Nurtur" folder in "Nurtur" target */,
-			);
 			path = Nurtur;
 			sourceTree = "<group>";
 		};
@@ -75,6 +64,7 @@
 		DF9F9B192F45DBA800000AFD = {
 			isa = PBXGroup;
 			children = (
+				DFFDDA5E2F6D85A000E98A7D /* LaunchScreen.storyboard */,
 				DFFDD9202F52C94800E98A7D /* Helpers */,
 				DFFDD8FB2F4F8E1D00E98A7D /* Secrets.xcconfig */,
 				DFFDD8ED2F4E369000E98A7D /* Services */,
@@ -163,6 +153,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFFDDA5F2F6D85A000E98A7D /* LaunchScreen.storyboard in Resources */,
 				DFFDD8FC2F4F8E1D00E98A7D /* Secrets.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -312,9 +303,11 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nurtur/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We use camera to identify your plants.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -345,9 +338,11 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nurtur/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We use camera to identify your plants.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
