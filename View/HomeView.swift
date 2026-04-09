@@ -89,6 +89,7 @@ struct HomeView: View {
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
+                
 
                 // Floating Add Button
                 VStack {
@@ -106,6 +107,9 @@ struct HomeView: View {
                                 .background(Color("AccentGreen"))
                                 .clipShape(Circle())
                         }
+                        .buttonStyle(.plain)
+                        .scaleEffect(showAddPlant ? 0.95 : 1.0)
+                        .animation(.easeInOut(duration: 0.1), value: showAddPlant)
                         .padding()
                     }
                 }
